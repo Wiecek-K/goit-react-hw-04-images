@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 
 interface ModalProps {
   src: string;
@@ -6,32 +6,25 @@ interface ModalProps {
   closeModal: () => void;
 }
 
-class Modal extends React.Component<ModalProps> {
-  constructor(props: ModalProps) {
-    super(props);
-  }
+export const Modal = ({ src, alt, closeModal }: ModalProps) => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
 
-  handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      this.props.closeModal();
-    }
-  };
-  componentDidMount() {
-    document.addEventListener("keydown", this.handleKeyDown);
-  }
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeyDown);
-  }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeModal]);
 
-  render() {
-    return (
-      <div className="Overlay" onClick={this.props.closeModal}>
-        <div className="Modal">
-          <img src={this.props.src} alt={this.props.alt} />
-        </div>
+  return (
+    <div className="Overlay" onClick={closeModal}>
+      <div className="Modal">
+        <img src={src} alt={alt} />
       </div>
-    );
-  }
-}
-
-export default Modal;
+    </div>
+  );
+};

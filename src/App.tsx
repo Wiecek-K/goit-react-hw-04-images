@@ -1,107 +1,78 @@
-import { Component } from "react";
+import { useState, useEffect, useContext } from "react";
 
-import ImageGallery from "./components/ImageGallery";
-import Button from "./components/Button";
-import Loader from "./components/Loader.tsx";
-import Searchbar from "./components/Searchbar.tsx";
+import { ImageGallery } from "./components/ImageGallery";
+import { Button } from "./components/Button";
+import { Loader } from "./components/Loader.tsx";
+import { Searchbar } from "./components/Searchbar.tsx";
+import { Modal } from "./components/Modal.tsx";
+import { ModalProvider, ModalContext } from "./context/ModalContext.tsx";
 
 import { fetchPhotosWithQuery } from "./services/api";
 import type { PhotoI } from "./types/Photo.ts";
-import Modal from "./components/Modal.tsx";
 
-interface State {
-  page: number;
-  query: string;
-  isloading: boolean;
-  photos: PhotoI[];
-  isEnd: boolean;
-  isModalOpen: boolean;
-  modalSrc: string;
-  modalAlt: string;
-}
+function App() {
+  const [photos, setPhotos] = useState<PhotoI[]>([]);
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("dog");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEnd, setIsEnd] = useState(false);
 
-export default class App extends Component<object, State> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      page: 1,
-      query: "dog",
-      isloading: false,
-      isModalOpen: false,
-      photos: [],
-      isEnd: false,
-      modalSrc: "",
-      modalAlt: "",
-    };
-  }
+  useEffect(() => {
+    getPhotos(query, page);
+  }, [query, page]);
 
-  getPhotos = async (query: string, page?: number) => {
-    this.setState({ isloading: true });
+  const {
+    isModalOpen,
+    modalAlt,
+    modalSrc,
+    setIsModalOpen,
+    setModalAlt,
+    setModalSrc,
+  } = useContext(ModalContext);
+
+  const getPhotos = async (query: string, page: number) => {
+    setIsLoading(true);
     try {
       const data = await fetchPhotosWithQuery(query, page);
-      this.setState((prevState) => ({
-        photos: [...prevState.photos, ...data.hits],
-      }));
-      if (data.total > this.state.page * 12) {
-        this.setState({ isEnd: false });
+      setPhotos((prevState) => [...prevState, ...data.hits]);
+      if (data.total > page * 12) {
+        setIsEnd(false);
       }
     } catch (err) {
       console.log(err);
     } finally {
-      this.setState({ isloading: false });
+      setIsLoading(false);
     }
   };
-
-  loadMore = () => {
-    this.setState((prevState) => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage((prevState) => prevState + 1);
   };
-  resetPhotosData = () => {
-    this.setState({ photos: [], page: 1, isEnd: true });
+  const resetPhotosData = () => {
+    setPhotos([]);
+    setPage(1);
+    setIsEnd(true);
   };
-  handleSubmit = (query: string) => {
-    this.resetPhotosData();
-    this.setState({ query });
-    this.getPhotos(query, 1);
+  const handleSubmit = (query: string) => {
+    resetPhotosData();
+    setQuery(query);
   };
-
-  componentDidMount() {
-    this.getPhotos(this.state.query, this.state.page);
-  }
-  componentDidUpdate(_prevProps: object, prevState: State) {
-    if (prevState.page !== this.state.page) {
-      this.getPhotos(this.state.query, this.state.page);
-    }
-  }
-  handleModalOpen = (modalAlt: string, modalSrc: string) => {
-    this.setState({ modalAlt, modalSrc, isModalOpen: true });
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalAlt("");
+    setModalSrc("");
   };
-  closeModal = () => {
-    this.setState({ isModalOpen: false, modalAlt: "", modalSrc: "" });
-  };
-  render() {
-    return (
-      <>
-        <Searchbar handleSubmit={this.handleSubmit} />
-        <div className="App">
-          <ImageGallery
-            photos={this.state.photos}
-            handleModalOpen={this.handleModalOpen}
-          />
-          {this.state.isloading ? <Loader /> : null}
-          {this.state.isModalOpen ? (
-            <Modal
-              src={this.state.modalSrc}
-              alt={this.state.modalAlt}
-              closeModal={this.closeModal}
-            />
-          ) : null}
-          {!this.state.isEnd ? (
-            <Button onClick={this.loadMore} title="Load More" />
-          ) : null}
-        </div>
-      </>
-    );
-  }
+  return (
+    <ModalProvider>
+      <Searchbar handleSubmit={handleSubmit} />
+      <div className="App">
+        <ImageGallery photos={photos} />
+        {isLoading ? <Loader /> : null}
+        {isModalOpen ? (
+          <Modal src={modalSrc} alt={modalAlt} closeModal={closeModal} />
+        ) : null}
+        {!isEnd ? <Button onClick={loadMore} title="Load More" /> : null}
+      </div>
+    </ModalProvider>
+  );
 }
+export default App;

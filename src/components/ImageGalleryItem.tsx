@@ -1,39 +1,38 @@
-import { Component } from "react";
-
+import { useContext } from "react";
+import { ModalContext } from "../context/ModalContext";
 interface ImageGalleryItemProps {
   src: string;
   alt: string;
   largePhoto: string;
-  handleModalOpen(modalAlt: string, modalSrc: string): void;
-}
-interface State {
-  isModalOpen: boolean;
 }
 
-class ImageGalleryItem extends Component<ImageGalleryItemProps, State> {
-  constructor(props: ImageGalleryItemProps) {
-    super(props);
-    this.state = {
-      isModalOpen: false,
-    };
-  }
-  handleModalOpen = () => {
-    this.props.handleModalOpen(this.props.alt, this.props.src);
+export const ImageGalleryItem = ({
+  src,
+  alt,
+  largePhoto,
+}: ImageGalleryItemProps) => {
+  const {
+    isModalOpen,
+    modalAlt,
+    modalSrc,
+    setIsModalOpen,
+    setModalAlt,
+    setModalSrc,
+  } = useContext(ModalContext);
+
+  const handleOpenModal = () => {
+    setModalAlt(alt);
+    setModalSrc(largePhoto);
+    setIsModalOpen(true);
   };
-
-
-
-  render() {
-    return (
-      <li className="ImageGalleryItem">
-        <img
-          onClick={this.handleModalOpen}
-          className="ImageGalleryItem-image"
-          src={this.props.src}
-          alt={this.props.alt}
-        />
-      </li>
-    );
-  }
-}
-export default ImageGalleryItem;
+  return (
+    <li className="ImageGalleryItem">
+      <img
+        className="ImageGalleryItem-image"
+        src={src}
+        alt={alt}
+        onClick={setIsModalOpen(handleOpenModal)}
+      />
+    </li>
+  );
+};

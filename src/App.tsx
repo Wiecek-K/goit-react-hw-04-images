@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 
 import { ImageGallery } from "./components/ImageGallery";
 import { Button } from "./components/Button";
 import { Loader } from "./components/Loader.tsx";
 import { Searchbar } from "./components/Searchbar.tsx";
 import { Modal } from "./components/Modal.tsx";
-import { ModalProvider, ModalContext } from "./context/ModalContext.tsx";
 
+import { useModalContext } from "./context/ModalContext.tsx";
 import { fetchPhotosWithQuery } from "./services/api";
 import type { PhotoI } from "./types/Photo.ts";
 
@@ -20,15 +20,6 @@ function App() {
   useEffect(() => {
     getPhotos(query, page);
   }, [query, page]);
-
-  const {
-    isModalOpen,
-    modalAlt,
-    modalSrc,
-    setIsModalOpen,
-    setModalAlt,
-    setModalSrc,
-  } = useContext(ModalContext);
 
   const getPhotos = async (query: string, page: number) => {
     setIsLoading(true);
@@ -56,13 +47,25 @@ function App() {
     resetPhotosData();
     setQuery(query);
   };
+
+  const {
+    isModalOpen,
+    modalAlt,
+    modalSrc,
+    setModalAlt,
+    setModalSrc,
+    setIsModalOpen,
+  } = useModalContext();
+
   const closeModal = () => {
     setIsModalOpen(false);
     setModalAlt("");
     setModalSrc("");
+    console.log("zamknij");
   };
+
   return (
-    <ModalProvider>
+    <>
       <Searchbar handleSubmit={handleSubmit} />
       <div className="App">
         <ImageGallery photos={photos} />
@@ -72,7 +75,7 @@ function App() {
         ) : null}
         {!isEnd ? <Button onClick={loadMore} title="Load More" /> : null}
       </div>
-    </ModalProvider>
+    </>
   );
 }
 export default App;

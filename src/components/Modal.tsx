@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 interface ModalProps {
   src: string;
   alt: string;
@@ -13,7 +12,6 @@ export const Modal = ({ src, alt, closeModal }: ModalProps) => {
         closeModal();
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
@@ -22,7 +20,12 @@ export const Modal = ({ src, alt, closeModal }: ModalProps) => {
 
   return (
     <div className="Overlay" onClick={closeModal}>
-      <div className="Modal">
+      <div
+        className="Modal"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <img src={src} alt={alt} />
       </div>
     </div>

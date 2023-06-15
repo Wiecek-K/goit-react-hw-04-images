@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { ModalContext } from "../context/ModalContext";
+import { useModalContext } from "../context/ModalContext";
 interface ImageGalleryItemProps {
   src: string;
   alt: string;
@@ -11,27 +10,21 @@ export const ImageGalleryItem = ({
   alt,
   largePhoto,
 }: ImageGalleryItemProps) => {
-  const {
-    isModalOpen,
-    modalAlt,
-    modalSrc,
-    setIsModalOpen,
-    setModalAlt,
-    setModalSrc,
-  } = useContext(ModalContext);
+  const { setIsModalOpen, setModalAlt, setModalSrc } = useModalContext();
 
   const handleOpenModal = () => {
     setModalAlt(alt);
     setModalSrc(largePhoto);
     setIsModalOpen(true);
   };
+
   return (
     <li className="ImageGalleryItem">
       <img
         className="ImageGalleryItem-image"
         src={src}
         alt={alt}
-        onClick={setIsModalOpen(handleOpenModal)}
+        onClick={handleOpenModal}
       />
     </li>
   );

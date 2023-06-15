@@ -1,7 +1,9 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./styles.css";
-
+import { ModalContextProvider } from "./context/ModalContext.tsx";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <App />
+  <ModalContextProvider>
+    <App />
+  </ModalContextProvider>
 );

@@ -1,4 +1,9 @@
-import { useState, createContext, PropsWithChildren } from "react";
+import React, {
+  useState,
+  createContext,
+  PropsWithChildren,
+  useContext,
+} from "react";
 
 interface ModalContextI {
   isModalOpen: boolean;
@@ -9,24 +14,33 @@ interface ModalContextI {
   setIsModalOpen: (value: boolean) => void;
 }
 
-export const ModalContext = createContext<ModalContextI | undefined>(undefined);
+const ModalContext = createContext<ModalContextI | undefined>(undefined);
 
-export const ModalProvider = ({ children }: PropsWithChildren) => {
+export const useModalContext = (): ModalContextI => {
+  const context = useContext(ModalContext);
+  if (!context) {
+    throw new Error("useMyContext must be used within a MyContextProvider");
+  }
+  return context;
+};
+
+export const ModalContextProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalAlt, setModalAlt] = useState("");
   const [modalSrc, setModalSrc] = useState("");
 
+  const contextValue: ModalContextI = {
+    isModalOpen,
+    setIsModalOpen,
+    modalAlt,
+    setModalAlt,
+    modalSrc,
+    setModalSrc,
+  };
   return (
-    <ModalContext.Provider
-      value={{
-        isModalOpen,
-        modalAlt,
-        modalSrc,
-        setIsModalOpen,
-        setModalAlt,
-        setModalSrc,
-      }}
-    >
+    <ModalContext.Provider value={contextValue}>
       {children}
     </ModalContext.Provider>
   );

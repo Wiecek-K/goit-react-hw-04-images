@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 interface ModalProps {
   src: string;
   alt: string;

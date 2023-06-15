@@ -1,4 +1,5 @@
 import { useModalContext } from "../context/ModalContext";
+
 interface ImageGalleryItemProps {
   src: string;
   alt: string;
